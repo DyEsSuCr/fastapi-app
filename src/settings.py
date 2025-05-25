@@ -31,6 +31,8 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRY_DAYS: int = 2
     ACCESS_TOKEN_EXPIRY_MINUTES: int = 60
 
+    ENABLE_RATE_LIMIT: bool = False
+
     TRUSTED_HOSTS: Annotated[list[str] | str, BeforeValidator(parse_to_list)] = Field(
         default_factory=list
     )
