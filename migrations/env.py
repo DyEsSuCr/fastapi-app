@@ -9,6 +9,7 @@ from alembic import context
 from sqlmodel import SQLModel
 
 from src.settings import settings
+from src.entities import User  # noqa: F401
 
 database_url = settings.DATABASE_URL
 
