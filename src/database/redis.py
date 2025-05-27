@@ -8,7 +8,7 @@ token_blocklist = aioredis.from_url(
 
 
 async def add_jti_to_blocklist(jti: str) -> None:
-    await token_blocklist.set(name=jti, value='', ex=settings.JTI_EXPIRY)
+    await token_blocklist.set(name=jti, value='', ex=settings.JTI_EXPIRY_SECONDS)
 
 
 async def token_in_blocklist(jti: str) -> bool:
