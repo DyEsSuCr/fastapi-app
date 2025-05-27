@@ -20,16 +20,19 @@ class Settings(BaseSettings):
 
     DB_MOTOR: Literal['mysql+aiomysql', 'postgresql+asyncpg']
 
+    REDIS_HOST: str
+    REDIS_PORT: int
+    JTI_EXPIRY_SECONDS: int = 3600
+
     APP_PORT: int
     APP_HOST: str
     APP_NAME: str
     APP_DESCRIPTION: str
 
-    JWT_SECRET: str
     JWT_ALGORITHM: str
     JWT_SECRET_KEY: str
     REFRESH_TOKEN_EXPIRY_DAYS: int = 2
-    ACCESS_TOKEN_EXPIRY_MINUTES: int = 60
+    ACCESS_TOKEN_EXPIRY_SECONDS: int = 3600
 
     ENABLE_RATE_LIMIT: bool = False
 
@@ -40,6 +43,11 @@ class Settings(BaseSettings):
     CORS_ORIGINS: Annotated[list[AnyUrl] | str, BeforeValidator(parse_to_list)] = Field(
         default_factory=list
     )
+
+    @computed_field
+    @property
+    def REDIS_URL(self) -> str:
+        return f'redis://{self.REDIS_HOST}:{self.REDIS_PORT}'
 
     @computed_field
     @property

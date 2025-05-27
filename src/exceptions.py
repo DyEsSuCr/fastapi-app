@@ -6,8 +6,56 @@ from starlette import status
 from sqlalchemy.exc import SQLAlchemyError
 
 
-class BooklyException(Exception):
+class BaseException(Exception):
     """This is the base class for all bookly errors"""
+
+    pass
+
+
+class InvalidToken(BaseException):
+    """User has provided an invalid or expired token"""
+
+    pass
+
+
+class RevokedToken(BaseException):
+    """User has provided a token that has been revoked"""
+
+    pass
+
+
+class AccessTokenRequired(BaseException):
+    """User has provided a refresh token when an access token is needed"""
+
+    pass
+
+
+class RefreshTokenRequired(BaseException):
+    """User has provided an access token when a refresh token is needed"""
+
+    pass
+
+
+class UserAlreadyExists(BaseException):
+    """User has provided an email for a user who exists during sign up."""
+
+    pass
+
+
+class InvalidCredentials(BaseException):
+    """User has provided wrong email or password during log in."""
+
+    pass
+
+
+class InsufficientPermission(BaseException):
+    """User does not have the neccessary permissions to perform an action."""
+
+    pass
+
+
+class UserNotFound(BaseException):
+    """User Not found"""
 
     pass
 
@@ -15,17 +63,57 @@ class BooklyException(Exception):
 def create_exception_handler(
     status_code: int, initial_detail: Any
 ) -> Callable[[Request, Exception], JSONResponse]:
-    async def exception_handler(request: Request, exc: BooklyException):
+    async def exception_handler(request: Request, exc: BaseException):
         return JSONResponse(content=initial_detail, status_code=status_code)
 
     return exception_handler
 
 
 exception_responses = {
-    BooklyException: {
+    BaseException: {
         'status_code': status.HTTP_400_BAD_REQUEST,
         'message': 'Bad request',
         'error_code': 'bad_request',
+    },
+    InvalidToken: {
+        'status_code': status.HTTP_401_UNAUTHORIZED,
+        'message': 'Invalid token',
+        'error_code': 'invalid_token',
+    },
+    RevokedToken: {
+        'status_code': status.HTTP_401_UNAUTHORIZED,
+        'message': 'Token has been revoked',
+        'error_code': 'revoked_token',
+    },
+    AccessTokenRequired: {
+        'status_code': status.HTTP_401_UNAUTHORIZED,
+        'message': 'Access token required',
+        'error_code': 'access_token_required',
+    },
+    RefreshTokenRequired: {
+        'status_code': status.HTTP_401_UNAUTHORIZED,
+        'message': 'Refresh token required',
+        'error_code': 'refresh_token_required',
+    },
+    UserAlreadyExists: {
+        'status_code': status.HTTP_400_BAD_REQUEST,
+        'message': 'User already exists',
+        'error_code': 'user_already_exists',
+    },
+    InvalidCredentials: {
+        'status_code': status.HTTP_401_UNAUTHORIZED,
+        'message': 'Invalid credentials',
+        'error_code': 'invalid_credentials',
+    },
+    InsufficientPermission: {
+        'status_code': status.HTTP_403_FORBIDDEN,
+        'message': 'Insufficient permissions',
+        'error_code': 'insufficient_permissions',
+    },
+    UserNotFound: {
+        'status_code': status.HTTP_404_NOT_FOUND,
+        'message': 'User not found',
+        'error_code': 'user_not_found',
     },
 }
 
