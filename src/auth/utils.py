@@ -1,6 +1,6 @@
 import logging
 import uuid
-import jwt
+from jose import jwt, JWTError
 from datetime import datetime, timedelta, timezone
 from passlib.context import CryptContext
 
@@ -11,7 +11,6 @@ passwd_context = CryptContext(schemes=['bcrypt'])
 
 def generate_passwd_hash(password: str) -> str:
     hash = passwd_context.hash(password)
-
     return hash
 
 
@@ -31,11 +30,10 @@ def create_access_token(
         else timedelta(seconds=settings.ACCESS_TOKEN_EXPIRY_SECONDS)
     )
     payload['jti'] = str(uuid.uuid4())
-
     payload['refresh'] = refresh
 
     token = jwt.encode(
-        payload=payload,
+        claims=payload,
         key=settings.JWT_SECRET_KEY,
         algorithm=settings.JWT_ALGORITHM,
     )
@@ -46,11 +44,12 @@ def create_access_token(
 def decode_token(token: str) -> dict:
     try:
         token_data = jwt.decode(
-            jwt=token, key=settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
+            token=token,
+            key=settings.JWT_SECRET_KEY,
+            algorithms=[settings.JWT_ALGORITHM],
         )
-
         return token_data
 
-    except jwt.PyJWTError as e:
-        logging.exception(e)
+    except JWTError as e:
+        logging.exception('Token decoding failed', exc_info=e)
         return None
