@@ -34,6 +34,17 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRY_DAYS: int = 2
     ACCESS_TOKEN_EXPIRY_SECONDS: int = 3600
 
+    MAIL_USERNAME: str
+    MAIL_PASSWORD: str
+    MAIL_FROM: str
+    MAIL_PORT: int
+    MAIL_SERVER: str
+    MAIL_FROM_NAME: str
+    MAIL_STARTTLS: bool = True
+    MAIL_SSL_TLS: bool = False
+    USE_CREDENTIALS: bool = True
+    VALIDATE_CERTS: bool = True
+
     ENABLE_RATE_LIMIT: bool = False
 
     TRUSTED_HOSTS: Annotated[list[str] | str, BeforeValidator(parse_to_list)] = Field(
@@ -43,6 +54,11 @@ class Settings(BaseSettings):
     CORS_ORIGINS: Annotated[list[AnyUrl] | str, BeforeValidator(parse_to_list)] = Field(
         default_factory=list
     )
+
+    @computed_field
+    @property
+    def DOMAIN_APP(self) -> str:
+        return f'http://{self.APP_HOST}:{self.APP_PORT}'
 
     @computed_field
     @property

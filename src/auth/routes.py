@@ -21,13 +21,18 @@ from .schemas import (
 from .service import user_service
 from .utils import (
     create_access_token,
+    create_url_safe_token,
+    decode_url_safe_token,
     verify_password,
 )
 from src.exceptions import (
     UserAlreadyExists,
     InvalidCredentials,
     InvalidToken,
+    UserNotFound,
+    AccountNotVerified,
 )
+from src.mail import send_email
 from src.settings import settings
 
 auth_router = APIRouter()
@@ -49,10 +54,49 @@ async def create_user_account(
 
     new_user = await user_service.create_user(user_data, session)
 
+    token = create_url_safe_token({'email': email})
+
+    link = f'{settings.DOMAIN_APP}/auth/verify/{token}'
+
+    html = f"""
+    <h1>Verify your Email</h1>
+    <p>Please click this <a href="{link}">link</a> to verify your email</p>
+    """
+
+    subject = 'Verify Your email'
+
+    bg_tasks.add_task(send_email, [email], subject, html)
+
     return {
-        'message': 'Account Created!',
+        'message': 'Account Created! Check email to verify your account',
         'user': new_user,
+        'link': link,
     }
+
+
+@auth_router.get('/verify/{token}')
+async def verify_user_account(token: str, session: DbSession):
+    token_data = decode_url_safe_token(token)
+
+    user_email = token_data.get('email')
+
+    if user_email:
+        user = await user_service.get_user_by_email(user_email, session)
+
+        if not user:
+            raise UserNotFound()
+
+        await user_service.update_user(user, {'is_verified': True}, session)
+
+        return JSONResponse(
+            content={'message': 'Account verified successfully'},
+            status_code=status.HTTP_200_OK,
+        )
+
+    return JSONResponse(
+        content={'message': 'Error occured during verification'},
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+    )
 
 
 @auth_router.post('/login')
@@ -61,6 +105,9 @@ async def login_users(login_data: UserLoginModel, session: DbSession):
     password = login_data.password
 
     user = await user_service.get_user_by_email(email, session)
+
+    if not user.is_verified:
+        raise AccountNotVerified()
 
     if user is not None:
         password_valid = verify_password(password, user.password_hash)

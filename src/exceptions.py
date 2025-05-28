@@ -60,6 +60,12 @@ class UserNotFound(BaseException):
     pass
 
 
+class AccountNotVerified(BaseException):
+    """User account not verified"""
+
+    pass
+
+
 def create_exception_handler(
     status_code: int, initial_detail: Any
 ) -> Callable[[Request, Exception], JSONResponse]:
@@ -114,6 +120,11 @@ exception_responses = {
         'status_code': status.HTTP_404_NOT_FOUND,
         'message': 'User not found',
         'error_code': 'user_not_found',
+    },
+    AccountNotVerified: {
+        'status_code': status.HTTP_400_BAD_REQUEST,
+        'message': 'Account not verified',
+        'error_code': 'account_not_verified',
     },
 }
 

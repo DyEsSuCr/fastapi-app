@@ -1,6 +1,7 @@
 import logging
 import uuid
 from jose import jwt, JWTError
+from itsdangerous import URLSafeTimedSerializer
 from datetime import datetime, timedelta, timezone
 from passlib.context import CryptContext
 
@@ -53,3 +54,24 @@ def decode_token(token: str) -> dict:
     except JWTError as e:
         logging.exception('Token decoding failed', exc_info=e)
         return None
+
+
+serializer = URLSafeTimedSerializer(
+    secret_key=settings.JWT_SECRET_KEY, salt='email-configuration'
+)
+
+
+def create_url_safe_token(data: dict):
+    token = serializer.dumps(data)
+
+    return token
+
+
+def decode_url_safe_token(token: str):
+    try:
+        token_data = serializer.loads(token)
+
+        return token_data
+
+    except Exception as e:
+        logging.error(str(e))
