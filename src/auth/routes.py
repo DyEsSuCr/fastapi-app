@@ -14,6 +14,8 @@ from .dependencies import (
     get_current_user,
 )
 from .schemas import (
+    PasswordResetConfirmModel,
+    PasswordResetRequestModel,
     UserCreateModel,
     UserLoginModel,
     UserModel,
@@ -23,6 +25,7 @@ from .utils import (
     create_access_token,
     create_url_safe_token,
     decode_url_safe_token,
+    generate_passwd_hash,
     verify_password,
 )
 from src.exceptions import (
@@ -31,6 +34,7 @@ from src.exceptions import (
     InvalidToken,
     UserNotFound,
     AccountNotVerified,
+    PasswordNotMatch,
 )
 from src.mail import send_email
 from src.settings import settings
@@ -167,4 +171,65 @@ async def revoke_token(token_details: dict = Depends(AccessTokenBearer())):
 
     return JSONResponse(
         content={'message': 'Logged Out Successfully'}, status_code=status.HTTP_200_OK
+    )
+
+
+@auth_router.post('/password-reset-request')
+async def password_reset_request(
+    email_data: PasswordResetRequestModel, bg_tasks: BackgroundTasks
+):
+    email = email_data.email
+
+    token = create_url_safe_token({'email': email})
+
+    link = f'{settings.DOMAIN_APP}/auth/password-reset-confirm/{token}'
+
+    html_message = f"""
+    <h1>Reset Your Password</h1>
+    <p>Please click this <a href="{link}">link</a> to Reset Your Password</p>
+    """
+    subject = 'Reset Your Password'
+
+    bg_tasks.add_task(send_email, [email], subject, html_message)
+    return JSONResponse(
+        content={
+            'message': 'Please check your email for instructions to reset your password',
+        },
+        status_code=status.HTTP_200_OK,
+    )
+
+
+@auth_router.post('/password-reset-confirm/{token}')
+async def reset_account_password(
+    token: str,
+    passwords: PasswordResetConfirmModel,
+    session: DbSession,
+):
+    new_password = passwords.new_password
+    confirm_password = passwords.confirm_new_password
+
+    if new_password != confirm_password:
+        raise PasswordNotMatch()
+
+    token_data = decode_url_safe_token(token)
+
+    user_email = token_data.get('email')
+
+    if user_email:
+        user = await user_service.get_user_by_email(user_email, session)
+
+        if not user:
+            raise UserNotFound()
+
+        passwd_hash = generate_passwd_hash(new_password)
+        await user_service.update_user(user, {'password_hash': passwd_hash}, session)
+
+        return JSONResponse(
+            content={'message': 'Password reset Successfully'},
+            status_code=status.HTTP_200_OK,
+        )
+
+    return JSONResponse(
+        content={'message': 'Error occured during password reset.'},
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
     )

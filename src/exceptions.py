@@ -66,6 +66,12 @@ class AccountNotVerified(BaseException):
     pass
 
 
+class PasswordNotMatch(BaseException):
+    """Password does not match"""
+
+    pass
+
+
 def create_exception_handler(
     status_code: int, initial_detail: Any
 ) -> Callable[[Request, Exception], JSONResponse]:
@@ -125,6 +131,11 @@ exception_responses = {
         'status_code': status.HTTP_400_BAD_REQUEST,
         'message': 'Account not verified',
         'error_code': 'account_not_verified',
+    },
+    PasswordNotMatch: {
+        'status_code': status.HTTP_400_BAD_REQUEST,
+        'message': 'Password does not match',
+        'error_code': 'password_not_match',
     },
 }
 
