@@ -17,6 +17,17 @@ services:
     ports:
       - "${REDIS_PORT}:6379"
 
+  web:
+    build: .
+    container_name: "fastapi-app-web"
+    volumes:
+      - .:/app
+    ports:
+      - "${APP_PORT}:8000"
+    depends_on:
+      - db
+      - redis
+
 volumes:
   pgdata-dev:
   pgdata-prod:
