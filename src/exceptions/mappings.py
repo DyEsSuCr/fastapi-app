@@ -1,92 +1,23 @@
-from typing import Any, Callable
-from fastapi.requests import Request
-from fastapi.responses import JSONResponse
-from fastapi import FastAPI
 from starlette import status
 from sqlalchemy.exc import SQLAlchemyError
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 
-
-class BaseException(Exception):
-    """This is the base class for all bookly errors"""
-
-    pass
-
-
-class InvalidToken(BaseException):
-    """User has provided an invalid or expired token"""
-
-    pass
-
-
-class RevokedToken(BaseException):
-    """User has provided a token that has been revoked"""
-
-    pass
-
-
-class AccessTokenRequired(BaseException):
-    """User has provided a refresh token when an access token is needed"""
-
-    pass
-
-
-class RefreshTokenRequired(BaseException):
-    """User has provided an access token when a refresh token is needed"""
-
-    pass
-
-
-class UserAlreadyExists(BaseException):
-    """User has provided an email for a user who exists during sign up."""
-
-    pass
-
-
-class InvalidCredentials(BaseException):
-    """User has provided wrong email or password during log in."""
-
-    pass
-
-
-class InsufficientPermission(BaseException):
-    """User does not have the neccessary permissions to perform an action."""
-
-    pass
-
-
-class UserNotFound(BaseException):
-    """User Not found"""
-
-    pass
-
-
-class AccountNotVerified(BaseException):
-    """User account not verified"""
-
-    pass
-
-
-class PasswordNotMatch(BaseException):
-    """Password does not match"""
-
-    pass
-
-
-def create_exception_handler(
-    status_code: int, initial_detail: Any
-) -> Callable[[Request, Exception], JSONResponse]:
-    async def exception_handler(request: Request, exc: BaseException):
-        return JSONResponse(content=initial_detail, status_code=status_code)
-
-    return exception_handler
-
+from .custom_exceptions import (
+    InvalidToken,
+    RevokedToken,
+    AccessTokenRequired,
+    RefreshTokenRequired,
+    UserAlreadyExists,
+    InvalidCredentials,
+    InsufficientPermission,
+    UserNotFound,
+    AccountNotVerified,
+    PasswordNotMatch,
+)
+from .handlers import create_exception_handler
 
 exception_responses = {
-    BaseException: {
-        'status_code': status.HTTP_400_BAD_REQUEST,
-        'message': 'Bad request',
-        'error_code': 'bad_request',
-    },
     InvalidToken: {
         'status_code': status.HTTP_401_UNAUTHORIZED,
         'message': 'Invalid token',
@@ -154,7 +85,7 @@ def register_exceptions(app: FastAPI):
         )
 
     @app.exception_handler(500)
-    async def internal_server_error(request, exc):
+    async def internal_server_error(request: Request, exc: Exception):
         return JSONResponse(
             content={
                 'message': 'Oops! Something went wrong',
@@ -164,7 +95,7 @@ def register_exceptions(app: FastAPI):
         )
 
     @app.exception_handler(SQLAlchemyError)
-    async def database__error(request, exc):
+    async def database_error(request: Request, exc: SQLAlchemyError):
         print(str(exc))
         return JSONResponse(
             content={

@@ -28,7 +28,7 @@ from .utils import (
     generate_passwd_hash,
     verify_password,
 )
-from src.exceptions import (
+from src.exceptions.custom_exceptions import (
     UserAlreadyExists,
     InvalidCredentials,
     InvalidToken,
