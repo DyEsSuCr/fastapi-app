@@ -1,1 +1,1 @@
-from .mappings import register_exceptions
+from .exception_mapping import register_exceptions

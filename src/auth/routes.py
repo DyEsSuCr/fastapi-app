@@ -74,7 +74,6 @@ async def create_user_account(
     return {
         'message': 'Account Created! Check email to verify your account',
         'user': new_user,
-        'link': link,
     }
 
 
