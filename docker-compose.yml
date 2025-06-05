@@ -10,18 +10,26 @@ services:
       - "${DB_PORT}:5432"
     volumes:
       - pgdata-${ENVIRONMENT}:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "${DB_USER}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   redis:
     image: redis:alpine
     container_name: fastapi-app-redis
     ports:
       - "${REDIS_PORT}:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   web:
     build: .
     container_name: "fastapi-app-web"
-    volumes:
-      - .:/app
     ports:
       - "${APP_PORT}:8000"
     depends_on:

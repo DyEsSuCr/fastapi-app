@@ -8,17 +8,15 @@ from src.database import get_session, AsyncSession
 from src.entities import User
 from src.database.redis import token_in_blocklist
 
-from .service import UserService
+from .service import user_service
 from .utils import decode_token
-from src.exceptions import (
+from src.exceptions.custom_exceptions import (
     InvalidToken,
     RefreshTokenRequired,
     AccessTokenRequired,
     InsufficientPermission,
     AccountNotVerified,
 )
-
-user_service = UserService()
 
 
 class TokenBearer(HTTPBearer):

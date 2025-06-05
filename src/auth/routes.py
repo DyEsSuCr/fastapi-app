@@ -28,7 +28,7 @@ from .utils import (
     generate_passwd_hash,
     verify_password,
 )
-from src.exceptions import (
+from src.exceptions.custom_exceptions import (
     UserAlreadyExists,
     InvalidCredentials,
     InvalidToken,
@@ -74,7 +74,6 @@ async def create_user_account(
     return {
         'message': 'Account Created! Check email to verify your account',
         'user': new_user,
-        'link': link,
     }
 
 
