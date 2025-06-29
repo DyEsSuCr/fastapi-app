@@ -6,7 +6,7 @@ from typing import Literal, Annotated
 from pydantic import computed_field
 from pydantic_core import MultiHostUrl
 
-from src.utils import parse_to_list
+from .utils import parse_to_list
 
 
 class Settings(BaseSettings):
