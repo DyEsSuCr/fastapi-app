@@ -32,7 +32,7 @@ class UserModel(BaseModel):
     is_verified: bool
     password_hash: str = Field(exclude=True)
     created_at: datetime
-    update_at: datetime
+    updated_at: datetime
 
 
 class UserLoginModel(BaseModel):

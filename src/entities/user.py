@@ -16,7 +16,7 @@ class User(SQLModel, table=True):
     password_hash: str = Field(nullable=False, exclude=True)
 
     created_at: datetime = Field(default_factory=datetime.now)
-    update_at: datetime = Field(default_factory=datetime.now)
+    updated_at: datetime = Field(default_factory=datetime.now)
 
     def __repr__(self):
         return f'<User {self.username}>'
