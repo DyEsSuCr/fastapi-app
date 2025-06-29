@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ subject }}</title>
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .header {
+            background-color: #4f46e5;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header img {
+            width: 80px;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            color: #ffffff;
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .content {
+            padding: 30px 25px;
+        }
+
+        .content h2 {
+            color: #2d3748;
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+        }
+
+        .content p {
+            color: #4a5568;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: #4f46e5;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #a0aec0;
+            padding: 20px;
+        }
+
+        .footer a {
+            color: #4f46e5;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://media.giphy.com/media/KXteHUB0FzCVMqIZg9/giphy.gif" alt="Logo or icon">
+            <h1>{{ subject }}</h1>
+        </div>
+
+        <div class="content">
+            {{ body }}
+        </div>
+
+        <div class="footer">
+            <p>&copy; <span id="current-year"></span> DyEsSuCr. All rights reserved.</p>
+            <p><a href="#">Privacy Policy</a> • <a href="#">Terms of Service</a></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+</body>
+
+</html>

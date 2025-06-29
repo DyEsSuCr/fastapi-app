@@ -62,14 +62,14 @@ async def create_user_account(
 
     link = f'{settings.DOMAIN_APP}/auth/verify/{token}'
 
-    html = f"""
-    <h1>Verify your Email</h1>
-    <p>Please click this <a href="{link}">link</a> to verify your email</p>
+    subject = 'Verify Your Email'
+
+    body = f"""
+    <h2>Thank you for signing up!</h2>
+    <a href='{link}' class='button'>Verify Your Account</a>
     """
 
-    subject = 'Verify Your email'
-
-    bg_tasks.add_task(send_email, [email], subject, html)
+    bg_tasks.add_task(send_email, [email], subject, body)
 
     return {
         'message': 'Account Created! Check email to verify your account',
@@ -183,13 +183,15 @@ async def password_reset_request(
 
     link = f'{settings.DOMAIN_APP}/auth/password-reset-confirm/{token}'
 
-    html_message = f"""
-    <h1>Reset Your Password</h1>
-    <p>Please click this <a href="{link}">link</a> to Reset Your Password</p>
-    """
     subject = 'Reset Your Password'
 
-    bg_tasks.add_task(send_email, [email], subject, html_message)
+    body = f"""
+    <h1>Reset Your Password</h1>
+    <a href='{link}' class='button'>Reset Your Password</a>
+    """
+
+    bg_tasks.add_task(send_email, [email], subject, body)
+
     return JSONResponse(
         content={
             'message': 'Please check your email for instructions to reset your password',
