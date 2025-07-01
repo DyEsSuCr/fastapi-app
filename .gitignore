@@ -13,3 +13,7 @@ wheels/
 .env.local
 .env.prod
 .env.staging
+
+# Logs
+*.log
+logs/
