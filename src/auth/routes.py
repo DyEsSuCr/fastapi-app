@@ -4,8 +4,10 @@ from fastapi import APIRouter, Depends, BackgroundTasks
 from fastapi.responses import JSONResponse
 from starlette import status
 
-from src.database import DbSession
 from src.database.redis import add_jti_to_blocklist
+from src.database import DbSession
+from src.celery import send_email
+from src.settings import settings
 
 from .dependencies import (
     AccessTokenBearer,
@@ -36,8 +38,6 @@ from src.exceptions.custom_exceptions import (
     AccountNotVerified,
     PasswordNotMatch,
 )
-from src.mail import send_email
-from src.settings import settings
 
 auth_router = APIRouter()
 role_checker = RoleChecker(['admin', 'user'])
@@ -69,7 +69,8 @@ async def create_user_account(
     <a href='{link}' class='button'>Verify Your Account</a>
     """
 
-    bg_tasks.add_task(send_email, [email], subject, body)
+    # bg_tasks.add_task(send_email, [email], subject, body)
+    send_email.delay([email], subject, body)
 
     return {
         'message': 'Account Created! Check email to verify your account',
@@ -190,7 +191,8 @@ async def password_reset_request(
     <a href='{link}' class='button'>Reset Your Password</a>
     """
 
-    bg_tasks.add_task(send_email, [email], subject, body)
+    # bg_tasks.add_task(send_email, [email], subject, body)
+    send_email.delay([email], subject, body)
 
     return JSONResponse(
         content={

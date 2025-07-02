@@ -22,6 +22,7 @@ class Settings(BaseSettings):
 
     REDIS_HOST: str
     REDIS_PORT: int
+    REDIS_URL: str
     JTI_EXPIRY_SECONDS: int = 3600
 
     APP_PORT: int
@@ -59,11 +60,6 @@ class Settings(BaseSettings):
     @property
     def DOMAIN_APP(self) -> str:
         return f'http://{self.APP_HOST}:{self.APP_PORT}'
-
-    @computed_field
-    @property
-    def REDIS_URL(self) -> str:
-        return f'redis://{self.REDIS_HOST}:{self.REDIS_PORT}'
 
     @computed_field
     @property

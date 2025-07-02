@@ -15,6 +15,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      - app-network
 
   redis:
     image: redis:alpine
@@ -26,17 +28,39 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - app-network
 
   web:
     build: .
-    container_name: "fastapi-app-web"
+    container_name: fastapi-app-web
     ports:
       - "${APP_PORT}:8000"
     depends_on:
       - db
       - redis
+    networks:
+      - app-network
+
+  celery:
+    build: .
+    container_name: fastapi-app-celery
+    command: celery -A src.celery.c_app worker --loglevel=INFO
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+    environment:
+      REDIS_URL: ${REDIS_URL}
+    networks:
+      - app-network
 
 volumes:
   pgdata-dev:
   pgdata-prod:
   pgdata-staging:
+
+networks:
+  app-network:
+    driver: bridge
